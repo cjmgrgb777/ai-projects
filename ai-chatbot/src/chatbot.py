@@ -37,7 +37,12 @@ class ChatBot:
         
 
     def _create_context(self, query):
-        similarities = self.vector_store.search(query) 
+        similarities = self.vector_store.search(query, k=3) 
+        
+
+        for i, doc in enumerate(similarities):
+            print(f"\nChunk {i+1}:")
+            print(doc.page_content[:200])
         
         context = "\n\n".join([doc.page_content for doc in similarities])
         
@@ -46,9 +51,9 @@ class ChatBot:
     def chat(self, query):
         context = self._create_context(query)
 
-        system_prompt = f"""You are a helpful assistant
-            Answer user's question using ONLY this context:"
-            "{context}"
+        system_prompt = f"""You are a helpful assistant.
+        Use this context to answer user queries:
+        {context}
         """
 
         prompt = ChatPromptTemplate.from_messages([
